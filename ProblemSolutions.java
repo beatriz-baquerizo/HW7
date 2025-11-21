@@ -1,12 +1,13 @@
 /******************************************************************
  *
- *   YOUR NAME / SECTION NUMBER
+ *   BEATRIZ SANTOS / 002
  *
  *   This java file contains the problem solutions for the methods selectionSort,
  *   mergeSortDivisibleByKFirst, asteroidsDestroyed, and numRescueCanoes methods.
  *
  ********************************************************************/
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public class ProblemSolutions {
@@ -35,15 +36,29 @@ public class ProblemSolutions {
     public static void selectionSort(int[] values, boolean ascending ) {
 
         int n = values.length;
-
-        for (int i = 0; i < n - 1; i++) {
-
-            // YOU CODE GOES HERE -- COMPLETE THE INNER LOOP OF THIS
-            // "SELECTION SORT" ALGORITHM.
-            // DO NOT FORGET TO ADD YOUR NAME / SECTION ABOVE
-
+        // iterate through array
+        for (int i = 0; i < n; i++) {
+            int index = i; // this is what we're checking when we swap elements
+            for (int j = i; j < n; j++) {
+                // check for ascending
+                if (ascending) {
+                    // if elm after index is less then replace index with j
+                    if (values[j] < values[index]) {
+                        index = j;
+                    }
+                    // check for descending
+                } else {
+                    // if elm before index is greater, then replace index with j
+                    if (values[j] > values[index]) {
+                        index = j;
+                    }
+                }
+            }
+            // swap !
+            int temp = values[i];
+            values[i] = values[index];
+            values[index] = temp;
         }
-
     } // End class selectionSort
 
 
@@ -90,21 +105,58 @@ public class ProblemSolutions {
      * The merging portion of the merge sort, divisible by k first
      */
 
-    private void mergeDivisbleByKFirst(int arr[], int k, int left, int mid, int right)
-    {
-        // YOUR CODE GOES HERE, THIS METHOD IS NO MORE THAN THE STANDARD MERGE PORTION
-        // OF A MERGESORT, EXCEPT THE NUMBERS DIVISIBLE BY K MUST GO FIRST WITHIN THE
-        // SEQUENCE PER THE DISCUSSION IN THE PROLOGUE ABOVE.
-        //
-        // NOTE: YOU CAN PROGRAM THIS WITH A SPACE COMPLEXITY OF O(1) OR O(N LOG N).
-        // AGAIN, THIS IS REFERRING TO SPACE COMPLEXITY. O(1) IS IN-PLACE, O(N LOG N)
-        // ALLOCATES AUXILIARY DATA STRUCTURES (TEMPORARY ARRAYS). IT WILL BE EASIER
-        // TO CODE WITH A SPACE COMPLEXITY OF O(N LOG N), WHICH IS FINE FOR PURPOSES
-        // OF THIS PROGRAMMING EXERCISES.
+    private void mergeDivisbleByKFirst(int arr[], int k, int left, int mid, int right) {
+        int n1 = mid - left + 1;
+        int n2 = right - mid;
 
-        return;
+        int L[] = new int[n1];
+        int R[] = new int[n2];
 
+        for (int i = 0; i < n1; i++) {
+            L[i] = arr[left + i];
+        }
+
+        for (int i = 0; i < n2; i++) {
+            R[i] = arr[mid + 1 + i];
+        }
+
+        int i = 0;
+        int j = 0;
+        int index = left;
+
+        while (i < n1 && j < n2) {
+            boolean leftDiv = (L[i] % k == 0);
+            boolean rightDiv = (R[j] % k == 0);
+
+            if (leftDiv && rightDiv) {
+                // Both divisible: take from left (original order)
+                arr[index++] = L[i++];
+            } else if (leftDiv && !rightDiv) {
+                // Only left divisible: take left (divisible comes first)
+                arr[index++] = L[i++];
+            } else if (!leftDiv && rightDiv) {
+                // Only right divisible: take right (divisible comes first)
+                arr[index++] = R[j++];
+            } else {
+                // Both not divisible: sort normally (ascending)
+                if (L[i] <= R[j]) {
+                    arr[index++] = L[i++];
+                } else {
+                    arr[index++] = R[j++];
+                }
+            }
+        }
+
+        while (i < n1) {
+            arr[index++] = L[i++];
+        }
+
+        while (j < n2) {
+            arr[index++] = R[j++];
+        }
     }
+
+
 
 
     /**
@@ -150,13 +202,31 @@ public class ProblemSolutions {
      * @param mass          - integer value representing the mass of the planet
      * @param asteroids     - integer array of the mass of asteroids
      * @return              - return true if all asteroids destroyed, else false.
+     *
+     * initial intuition:
+     *  sort asteroids in ascending order
+     *  iterate through asteroids array:
+     *      - if planet mass is less than asteroid(i): return False
+     *      - if planet mass is greater than asteroid(i): return planet mass + asteroid mass
+     *  loop completion
+     *  return true
+     *
      */
 
     public static boolean asteroidsDestroyed(int mass, int[] asteroids) {
+        // sort arrays in ascending order
+        Arrays.sort(asteroids); // O (n log n)
 
-        // YOUR CODE GOES HERE, CONSIDER USING ARRAYS.SORT()
-
-        return false;
+        // iterate through asteroids
+        for (int i = 0; i < asteroids.length; i++){
+            // if mass is less than asteroid: F
+            if (mass < asteroids[i]){
+                return false;
+            } else if (mass >= asteroids[i]){
+                mass += asteroids[i];
+            }
+        }
+        return true;
 
     }
 
@@ -191,11 +261,30 @@ public class ProblemSolutions {
      */
 
     public static int numRescueSleds(int[] people, int limit) {
+        Arrays.sort(people);
 
-        // YOUR CODE GOES HERE, CONSIDER USING ARRAYS.SORT
+        // edge case
+        if (people.length == 0){
+            return 0;
+        }
 
-        return -1;
+        // initialize sled variable
+        int sled = 0;
+        // create pointers to see if pairs fit in sled
+        int pointL = 0;
+        int pointR = people.length - 1;
 
+        // iterate through array
+        while (pointL <= pointR){
+            // if smallest and biggest are less than OR EQUAL TO limit: add sled and update L pointer
+            if (people[pointL] + people[pointR] <= limit){
+                pointL++;
+            }
+            // regardless you will always move R to the left as if it's to big it will get its own sled (always increment sled)
+            pointR--;
+            sled ++;
+        }
+        return sled;
     }
 
 } // End Class ProblemSolutions
